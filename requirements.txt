@@ -1,2 +1,9 @@
-
-
+goatools==1.5.2
+matplotlib==3.9.2
+matplotlib-inline==0.1.7
+matplotlib-venn==1.1.2
+networkx==3.4.2
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.14.1
+stringdb==0.1.5

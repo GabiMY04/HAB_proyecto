@@ -79,7 +79,11 @@ def ejecutar_diamond(input_dir: Path, output_dir: Path) -> pd.DataFrame:
     degrees = {n: len(neighbors[n]) for n in G}
 
     def calc_pval(node):
-        """Calcula p-valor hipergeométrico para un nodo."""
+        """
+        Calcula el p-valor hipergeométrico que mide la probabilidad de observar
+        al menos k_s conexiones entre el nodo candidato y los genes semilla,
+        dada la distribución de grados de la red (modelo de azar hipergeométrico).
+        """
         k_i = degrees[node]
         k_s = len(neighbors[node] & semillas)
         return hypergeom.sf(k_s - 1, N, K, k_i), k_s

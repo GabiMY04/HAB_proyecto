@@ -41,7 +41,14 @@ def mapear_genes_a_STRING(genes: list[str], species_id: int) -> list[str]:
 
 
 def descargar_red_STRING(genes_file: Path, species_id: int, output_file: Path, score_threshold: int = 700) -> None:
-    """Descarga una red de interacciones desde STRINGdb centrada en los genes semilla."""
+    """
+    Descarga una red de interacciones proteína-proteína (PPI) desde la API de STRINGdb,
+    centrada en los genes semilla especificados.
+
+    El proceso garantiza compatibilidad entre los identificadores de los genes y los nodos
+    de la red, filtrando interacciones por score mínimo. Produce una lista de aristas
+    lista para su uso en NetworkX o DIAMOnD.
+    """
 
     # Leer genes desde el archivo
     genes = [g.strip() for g in genes_file.read_text().splitlines() if g.strip()]

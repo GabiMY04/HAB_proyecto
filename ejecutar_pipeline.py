@@ -52,9 +52,6 @@ def main():
     parser.add_argument("--input_dir", default="data/", help="Directorio con los archivos de entrada.")
     parser.add_argument("--output_dir", default="results/", help="Directorio donde se guardarán los resultados.")
     parser.add_argument("--species_id", type=int, default=3702, help="ID de especie en STRING (ej. 3702 = Arabidopsis thaliana).")
-    parser.add_argument("--fdr", type=float, default=0.01, help="Umbral máximo de FDR para el análisis funcional.")
-    parser.add_argument("--category", nargs="+", default=["Process"], help="Categorías a incluir en el ORA (por defecto: Process).")
-    parser.add_argument("--graficar", action="store_true", help="Generar gráficas comparativas de ORA pre y post-propagación.")
     args = parser.parse_args()
 
     data_dir = Path(args.input_dir)
@@ -92,7 +89,6 @@ def main():
         print("⏳ Red no encontrada. Descargando desde STRING...")
         descargar_red_STRING(
             genes_file=genes_semilla_string,
-            species_id=args.species_id,
             output_file=input_network
         )
         print("✅ Red descargada correctamente.")
@@ -104,8 +100,7 @@ def main():
     genes_semilla_string_id = data_dir / "genes_semilla_stringid.txt"
     ejecutar_ora_STRING(
         input_genes=genes_semilla_string_id,
-        output_dir=ora_pre_dir,
-        species_id=args.species_id
+        output_dir=ora_pre_dir
     )
     paso += 1
 
@@ -139,15 +134,12 @@ def main():
             f"Esperados:\n - {ora_pre_result}\n - {ora_post_result}"
         )
 
-    # === Paso 7: Visualizaciones comparativas (opcional) ===
-    if args.graficar:
-        print(f"\n🔹 Paso {paso}: Generando gráficas comparativas...")
-        comparativas_dir = results_dir / "comparativas"
-        generar_visualizaciones(pre_csv=ora_pre_result, post_csv=ora_post_result, output_dir=comparativas_dir)
-        print("📊 Gráficas comparativas generadas correctamente.")
-        paso += 1
-    else:
-        print("⏩ Opción --graficar no seleccionada. Se omite la generación de gráficas.")
+    # === Paso 7: Visualizaciones comparativas ===
+    print(f"\n🔹 Paso {paso}: Generando gráficas comparativas...")
+    comparativas_dir = results_dir / "comparativas"
+    generar_visualizaciones(pre_csv=ora_pre_result, post_csv=ora_post_result, output_dir=comparativas_dir)
+    print("📊 Gráficas comparativas generadas correctamente.")
+    paso += 1
 
     # === Final ===
     print("\n🎯 Flujo de trabajo completado correctamente.")
@@ -155,8 +147,7 @@ def main():
     print(f"   - ORA inicial:           {ora_pre_dir}")
     print(f"   - Propagación DIAMOnD:   {diamond_results_dir}")
     print(f"   - ORA posterior:         {ora_post_dir}")
-    if args.graficar:
-        print(f"   - Comparativas:          {comparativas_dir}")
+    print(f"   - Comparativas:          {comparativas_dir}")
 
 
 if __name__ == "__main__":

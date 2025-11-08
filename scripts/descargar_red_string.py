@@ -40,7 +40,7 @@ def mapear_genes_a_STRING(genes: list[str], species_id: int) -> list[str]:
     return ids_mapeados
 
 
-def descargar_red_STRING(genes_file: Path, species_id: int, output_file: Path, score_threshold: int = 700) -> None:
+def descargar_red_STRING(genes_file: Path, output_file: Path, score_threshold: int = 700) -> None:
     """
     Descarga una red de interacciones proteína-proteína (PPI) desde la API de STRINGdb,
     centrada en los genes semilla especificados.
@@ -55,7 +55,7 @@ def descargar_red_STRING(genes_file: Path, species_id: int, output_file: Path, s
     print(f"🧬 Mapeando {len(genes)} genes a STRING IDs válidos...")
 
     # Mapear a IDs de STRING
-    string_ids = mapear_genes_a_STRING(genes, species_id)
+    string_ids = mapear_genes_a_STRING(genes, 3702)
 
     # Guardar lista mapeada
     map_file = genes_file.parent / "genes_semilla_stringid.txt"
@@ -67,13 +67,13 @@ def descargar_red_STRING(genes_file: Path, species_id: int, output_file: Path, s
     url = "https://string-db.org/api/json/network"
     params = {
         "identifiers": identifiers,
-        "species": species_id,
+        "species": 3702,
         "required_score": score_threshold,
         "add_nodes": 500,
         "network_type": "functional",
     }
 
-    print(f"⏳ Descargando red centrada en las semillas (species={species_id}, score≥{score_threshold})...")
+    print(f"⏳ Descargando red centrada en las semillas (species=3702, score≥{score_threshold})...")
     r = requests.get(url, params=params)
     if r.status_code != 200:
         raise ConnectionError(f"Error {r.status_code}: {r.text}")
@@ -93,9 +93,8 @@ def descargar_red_STRING(genes_file: Path, species_id: int, output_file: Path, s
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Descarga una red de interacciones centrada en genes semilla desde STRINGdb.")
     parser.add_argument("--genes_file", type=Path, required=True, help="Archivo con genes semilla (uno por línea).")
-    parser.add_argument("--species_id", type=int, required=True, help="Código taxonómico de la especie (ej. 3702, 9606, etc.).")
     parser.add_argument("--output_file", type=Path, default=Path("data/network_subgraph.txt"), help="Archivo de salida.")
     parser.add_argument("--score_threshold", type=int, default=700, help="Umbral mínimo de score combinado (0–1000).")
     args = parser.parse_args()
 
-    descargar_red_STRING(args.genes_file, args.species_id, args.output_file, args.score_threshold)
+    descargar_red_STRING(args.genes_file, args.output_file, args.score_threshold)

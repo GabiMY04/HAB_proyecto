@@ -89,6 +89,7 @@ Esto garantiza la reproducibilidad completa de los resultados.
 
 Durante la ejecución, el algoritmo se detiene automáticamente cuando se cumple
 alguna de las siguientes condiciones:
+
 	1.	No existen más candidatos posibles.
 	2.	El mejor _p_-valor deja de ser estadísticamente significativo (_p_ > 0.05).
 	3.	Se alcanzan 100 genes añadidos al módulo.

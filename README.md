@@ -89,11 +89,10 @@ Esto garantiza la reproducibilidad completa de los resultados.
 
 Durante la ejecución, el algoritmo se detiene automáticamente cuando se cumple
 alguna de las siguientes condiciones:
-
-	1.	No existen más candidatos posibles.
-	2.	El mejor _p_-valor deja de ser estadísticamente significativo (_p_ > 0.05).
-	3.	Se alcanzan 100 genes añadidos al módulo.
-	4.	Se completan 200 iteraciones del proceso.
+ - 1.	No existen más candidatos posibles.
+ - 2.	El mejor _p_-valor deja de ser estadísticamente significativo (_p_ > 0.05).
+ - 3.	Se alcanzan 100 genes añadidos al módulo.
+- 4.	Se completan 200 iteraciones del proceso.
 
 Estos criterios garantizan una expansión controlada del módulo y evitan la incorporación de nodos con baja relevancia estadística.
 Los parámetros internos del modelo se encuentran fijados y no deben modificarse,

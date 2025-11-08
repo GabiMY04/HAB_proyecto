@@ -4,7 +4,7 @@ Script: generar_visualizaciones.py
 Descripción:
     Genera comparaciones gráficas de los resultados del análisis de enriquecimiento funcional
     antes y después de aplicar el algoritmo DIAMOnD. Funciona con resultados obtenidos desde
-    STRINGdb (Arabidopsis u otras especies) y produce:
+    STRINGdb y produce:
         - Comparación general de significancia (Pre vs Post)
         - Categorías nuevas tras la propagación
         - Diagrama de solapamiento (Venn)
@@ -27,7 +27,15 @@ from matplotlib_venn import venn2
 
 
 def generar_visualizaciones(pre_csv: Path, post_csv: Path, output_dir: Path) -> pd.DataFrame:
-    """Genera representaciones gráficas comparando ORA pre y post DIAMOnD."""
+    """
+    Genera representaciones visuales comparando los resultados del análisis funcional
+    antes y después de la propagación con DIAMOnD.
+
+    Incluye:
+        - Comparación de significancia (barplot delta)
+        - Nuevas categorías enriquecidas post-propagación
+        - Diagrama de Venn del solapamiento de términos GO
+    """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 

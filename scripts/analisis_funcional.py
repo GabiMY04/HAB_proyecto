@@ -3,9 +3,9 @@ Script: analisis_funcional.py
 
 Descripción:
     Realiza un análisis de sobrerrepresentación génica (Over-Representation Analysis, ORA)
-    utilizando la API oficial de STRINGdb. Permite analizar listas de genes de distintas
-    especies (por ejemplo, Arabidopsis thaliana) y devuelve solo los términos de Gene Ontology (GO),
-    reemplazando los identificadores GO:XXXXXXX por sus nombres descriptivos.
+    utilizando la API oficial de STRINGdb. Permite analizar listas de genes de Arabidopsis
+    thaliana y devuelve solo los términos de Gene Ontology (GO), reemplazando los
+    identificadores GO:XXXXXXX por sus nombres descriptivos.
 
 Entradas:
     - Archivo con genes (uno por línea o separados por comas).
@@ -54,7 +54,13 @@ def mapear_GO_a_nombre(go_ids: list[str], output_dir: Path = Path(".")) -> dict[
 
 
 def graficar_resultados(df: pd.DataFrame, output_dir: Path, n_resultados: int = 10) -> None:
-    """Genera un gráfico de barras con los n_resultados más significativos del ORA."""
+    """
+    Genera un gráfico de barras con los n_resultados más significativos del análisis ORA.
+
+    Los valores de significancia se representan como -log10(FDR), lo que permite visualizar
+    de forma intuitiva la fuerza del enriquecimiento. Se emplean únicamente categorías GO
+    ya mapeadas a descripciones legibles.
+    """
     # Detectar la columna de p-valor ajustado
     if "FDR" in df.columns:
         pvals = "FDR"
@@ -88,7 +94,7 @@ def graficar_resultados(df: pd.DataFrame, output_dir: Path, n_resultados: int = 
 
 
 # === ORA principal ===
-def ejecutar_ora_STRING(input_genes: str, output_dir: str, species_id: int = 3702) -> pd.DataFrame:
+def ejecutar_ora_STRING(input_genes: str, output_dir: str) -> pd.DataFrame:
     """
     Ejecuta un análisis ORA en STRINGdb y devuelve los resultados limitados a términos GO.
     Los identificadores GO se reemplazan por sus descripciones oficiales.
@@ -98,11 +104,11 @@ def ejecutar_ora_STRING(input_genes: str, output_dir: str, species_id: int = 370
 
     # Leer genes
     genes = leer_genes(input_genes)
-    print(f"🔍 Ejecutando ORA en STRINGdb para {len(genes)} genes (species={species_id})...")
+    print(f"🔍 Ejecutando ORA en STRINGdb para {len(genes)} genes (species={3702})...")
 
     # Ejecutar análisis ORA
     try:
-        enrichment = stringdb.get_enrichment(genes, species=species_id)
+        enrichment = stringdb.get_enrichment(genes, species=3702)
         if enrichment is None or enrichment.empty:
             print("⚠️ No se obtuvieron resultados de enriquecimiento.")
             return pd.DataFrame()
@@ -153,8 +159,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Análisis funcional mediante STRINGdb.")
     parser.add_argument("--input", required=True, help="Archivo con genes (txt con comas o saltos de línea).")
     parser.add_argument("--output", default="results", help="Directorio donde guardar los resultados.")
-    parser.add_argument("--species_id", type=int, default=3702, help="ID de especie en STRING (por defecto 3702 = Arabidopsis thaliana).")
 
     args = parser.parse_args()
 
-    ejecutar_ora_STRING(args.input, args.output, args.species_id)
+    ejecutar_ora_STRING(args.input, args.output)

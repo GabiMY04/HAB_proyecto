@@ -119,8 +119,7 @@ def main():
     ora_post_dir = results_dir / "ORA_diamond"
     ejecutar_ora_STRING(
         input_genes=diamond_genes_path,
-        output_dir=ora_post_dir,
-        species_id=args.species_id
+        output_dir=ora_post_dir
     )
     paso += 1
 

@@ -165,14 +165,90 @@ def ejecutar_ora_STRING(input_genes: str, output_dir: str) -> pd.DataFrame:
     return df_final
 
 
-# === Ejecución directa ===
-if __name__ == "__main__":
-    import argparse
 
-    parser = argparse.ArgumentParser(description="Análisis funcional mediante STRINGdb.")
-    parser.add_argument("--input", required=True, help="Archivo con genes (txt con comas o saltos de línea).")
-    parser.add_argument("--output", default="results", help="Directorio donde guardar los resultados.")
 
-    args = parser.parse_args()
+# =============== Propagación GUILD (Random Walk with Restart) =====================
 
-    ejecutar_ora_STRING(args.input, args.output)
+
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import networkx as nx
+from scipy import sparse
+
+def _leer_lista(path: Path) -> list[str]:
+    return [x.strip() for x in Path(path).read_text().splitlines() if x.strip()]
+
+def ejecutar_guild(input_dir: Path, out_propagation: Path, topk: int = 100, alpha: float = 0.5,
+                   tol: float = 1e-8, max_iter: int = 200) -> pd.DataFrame:
+    """
+    Ejecuta GUILD (priorización por propagación en red; RWR) sobre la red y semillas.
+    - input_dir debe contener: network_arabidopsis.txt y genes_semilla_stringid.txt
+    - out_propagation: carpeta donde guardar guild_scores.csv y guild_genes.txt
+    """
+    out_propagation.mkdir(parents=True, exist_ok=True)
+    ruta_red = input_dir / "network_arabidopsis.txt"
+    ruta_sem = input_dir / "genes_semilla_stringid.txt"
+
+    # Cargar red (igual patrón que DIAMOnD)
+    try:
+        G = nx.read_edgelist(ruta_red, delimiter=None)
+    except Exception:
+        G = nx.read_edgelist(ruta_red, delimiter=" ")
+
+    semillas = set(_leer_lista(ruta_sem))
+    if not semillas:
+        raise ValueError("No hay semillas en genes_semilla_stringid.txt")
+
+    # Normalizar IDs como en DIAMOnD (quitar sufijos .1, .2...)
+    def _clean(s): return s.split(".")[0] if s.count(".") > 1 else s
+    semillas_norm = {_clean(s) for s in semillas}
+    nodos_norm = {_clean(n) for n in G.nodes()}
+    inter = semillas_norm & nodos_norm
+    if inter:
+        semillas = {n for n in G.nodes() if _clean(n) in inter}
+    else:
+        posibles = [n for n in G.nodes() if any(n.startswith(s) for s in semillas_norm)]
+        if not posibles:
+            raise ValueError("Ninguna semilla está en la red tras normalización.")
+        semillas = set(posibles)
+
+    # Construir matriz columna-normalizada W
+    nodes = list(G.nodes())
+    idx = {n: i for i, n in enumerate(nodes)}
+    rows, cols = [], []
+    for u, v in G.edges():
+        rows += [idx[v]]; cols += [idx[u]]
+        rows += [idx[u]]; cols += [idx[v]]
+    data = np.ones(len(rows), dtype=float)
+    A = sparse.coo_matrix((data, (rows, cols)), shape=(len(nodes), len(nodes))).tocsr()
+    col_sums = np.array(A.sum(axis=0)).ravel()
+    col_sums[col_sums == 0] = 1.0
+    W = A @ sparse.diags(1.0 / col_sums)
+
+    # Vector de reinicio r
+    r = np.zeros(len(nodes))
+    seeds_idx = [idx[s] for s in semillas if s in idx]
+    r[seeds_idx] = 1.0 / len(seeds_idx)
+
+    # RWR: p_{t+1} = (1 - alpha) * W * p_t + alpha * r
+    p = r.copy()
+    for _ in range(max_iter):
+        p_new = (1 - alpha) * (W @ p) + alpha * r
+        if np.linalg.norm(p_new - p, 1) < tol:
+            p = p_new; break
+        p = p_new
+
+    # Tabla de scores y selección top-K no semillas
+    df_scores = pd.DataFrame({"Gen": nodes, "Score": p})
+    df_scores = df_scores.sort_values("Score", ascending=False)
+    df_scores.to_csv(out_propagation / "guild_scores.csv", index=False)
+
+    candidatos = df_scores[~df_scores["Gen"].isin(semillas)].head(topk)["Gen"].tolist()
+    genes_modulo = list(semillas) + candidatos
+    (out_propagation / "guild_genes.txt").write_text("\n".join(genes_modulo))
+
+    print(f"✅ GUILD completado. {len(candidatos)} genes añadidos.")
+    print(f"   • {out_propagation/'guild_scores.csv'}")
+    print(f"   • {out_propagation/'guild_genes.txt'}")
+    return df_scores

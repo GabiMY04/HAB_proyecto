@@ -21,7 +21,6 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import requests
 from goatools.obo_parser import GODag
-import stringdb
 
 
 # === Utilidades ===
@@ -51,6 +50,20 @@ def mapear_GO_a_nombre(go_ids: list[str], output_dir: Path = Path(".")) -> dict[
 
     go_dag = GODag(obo_path, optional_attrs={"defn"})
     return {go_id: go_dag[go_id].name for go_id in go_ids if go_id in go_dag}
+
+def obtener_enriquecimiento_STRING(genes: list[str], species: int = 3702) -> pd.DataFrame:
+    """
+    Consulta la API oficial de STRINGdb para realizar un análisis de sobrerrepresentación (ORA).
+    Devuelve un DataFrame con los resultados de enriquecimiento.
+    """
+    url = "https://string-db.org/api/json/enrichment"
+    params = {"identifiers": "%0d".join(genes), "species": species}
+    r = requests.get(url, params=params)
+    r.raise_for_status()
+    data = r.json()
+    if not data:
+        return pd.DataFrame()
+    return pd.DataFrame(data)
 
 
 def graficar_resultados(df: pd.DataFrame, output_dir: Path, n_resultados: int = 10) -> None:
@@ -108,7 +121,7 @@ def ejecutar_ora_STRING(input_genes: str, output_dir: str) -> pd.DataFrame:
 
     # Ejecutar análisis ORA
     try:
-        enrichment = stringdb.get_enrichment(genes, species=3702)
+        enrichment = obtener_enriquecimiento_STRING(genes, species=3702)
         if enrichment is None or enrichment.empty:
             print("⚠️ No se obtuvieron resultados de enriquecimiento.")
             return pd.DataFrame()

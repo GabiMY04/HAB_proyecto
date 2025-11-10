@@ -2,12 +2,35 @@
 Script: visualizacion_omica.py
 
 Descripción:
+    Funciones utilitarias para generar visualizaciones ómicas a partir de:
+    - Resultados de expresión diferencial (DEGs)
+    - Redes de interacción (edgelist STRING / PPI)
+    - Listas de genes semilla y genes añadidos por DIAMOnD
 
+Funciones principales:
+    - load_deg(path_pattern)
+        Lee un archivo TSV de DEGs (acepta patrón glob) y devuelve un pandas.DataFrame.
+        Formato recomendado del TSV: columnas mínimas 'Gene', 'Coef' (log2FC), 'P.value.adj'.
 
-Entradas:
+    - plot_volcano(df, coef_col='Coef', padj_col='P.value.adj', gene_col=None,
+                   fc_thr=1.0, fdr_thr=0.05, out='results/plots/volcano.png', top_n=10)
+        Genera un volcano plot (log2FC vs -log10(adj p-value)), marca genes significativos
+        según umbrales y anota los top_n genes más significativos en la esquina superior derecha.
+        Parámetros:
+          * df: DataFrame con columnas de coeficiente y p-ajustado.
+          * coef_col / padj_col: nombres de columnas en df.
+          * out: ruta de salida PNG.
+        Salida: imagen PNG guardada en la ruta indicada.
 
+    - plot_network(edge_path, seeds_path=None, added_path=None,
+                   out='results/plots/network_seed_overlay.png', show_labels=False)
+        Dibuja un subgrafo relevante de la red PPI (semillas y añadidos resaltados).
+        Entradas esperadas:
+          * edge_path: edgelist (archivo plano, dos columnas: nodoA nodoB).
+          * seeds_path / added_path: listas de genes (una línea por gen). Acepta IDs con o sin prefijo "3702.".
+          * out: ruta de salida PNG.
+        Salida: imagen PNG del grafo y (según versión) opcionalmente .graphml.
 
-Salidas:
 
 """
 
@@ -20,12 +43,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
 from scipy import stats
+from networkx.algorithms.community import greedy_modularity_communities
+import matplotlib.patches as mpatches
 
-sns.set(style="whitegrid")
+
+###################################################################
+##################### load_deg  ###################################
+###################################################################
 
 def load_deg(path_pattern):
     """
-    
+    Carga el archivo de DEGs y devuelve un pandas.DataFrame
     """
     files = glob.glob(path_pattern)
     if not files:
@@ -36,6 +64,9 @@ def load_deg(path_pattern):
 
 
 
+###################################################################
+##################### plot_volcano ################################
+###################################################################
 def plot_volcano(df, coef_col='Coef', padj_col='P.value.adj', gene_col=None,
                  fc_thr=1.0, fdr_thr=0.05, out='results/plots/volcano.png', top_n=10):
     os.makedirs(os.path.dirname(str(out)), exist_ok=True)
@@ -119,6 +150,11 @@ def plot_volcano(df, coef_col='Coef', padj_col='P.value.adj', gene_col=None,
     print("Volcano guardado en", out)
 
 
+
+
+###################################################################
+##################### plot_network ################################
+###################################################################
 def plot_network(edge_path, seeds_path=None, added_path=None,
                  out='results/plots/network_seed_overlay.png',
                  show_labels=False):
@@ -127,14 +163,6 @@ def plot_network(edge_path, seeds_path=None, added_path=None,
     de la red de interacciones proteína-proteína (PPI),
     destacando los genes semilla y los añadidos por DIAMOnD.
     """
-
-    import os
-    import pandas as pd
-    import networkx as nx
-    import matplotlib.pyplot as plt
-    from networkx.algorithms.community import greedy_modularity_communities
-    import matplotlib.patches as mpatches
-
     os.makedirs(os.path.dirname(out), exist_ok=True)
 
     # ===Cargar aristas ===

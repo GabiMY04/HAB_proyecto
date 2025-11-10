@@ -252,3 +252,49 @@ def ejecutar_guild(input_dir: Path, out_propagation: Path, topk: int = 100, alph
     print(f"   • {out_propagation/'guild_scores.csv'}")
     print(f"   • {out_propagation/'guild_genes.txt'}")
     return df_scores
+
+
+# ORA (se reutiliza el existente)
+
+def ora_post_guild(input_dir: Path, outdir: Path, topk: int = 100, alpha: float = 0.5) -> None:
+    """Ejecuta GUILD y luego ORA sobre (semillas + top-K), guardando en ORA_guild/."""
+    prop_dir = outdir / "guild_propagation"
+    ejecutar_guild(input_dir, prop_dir, topk=topk, alpha=alpha)
+    genes_path = prop_dir / "guild_genes.txt"
+    ora_dir = outdir / "ORA_guild"
+    ejecutar_ora_STRING(str(genes_path), str(ora_dir))
+
+
+
+# Adición de argumentos para los subcomandos de ejecución, 
+# En el bloque if __name__ == "__main__": agrega un subcomando guild debajo de los argumentos actuales:
+
+if __name__ == "__main__":
+    import argparse
+    from pathlib import Path
+
+    parser = argparse.ArgumentParser(description="Análisis funcional mediante STRINGdb.")
+    sub = parser.add_subparsers(dest="cmd")
+
+    # ORA clásico (comportamiento previo por defecto)
+    p_ora = sub.add_parser("ora", help="Ejecuta ORA sobre una lista de genes.")
+    p_ora.add_argument("--input", required=True, help="Archivo con genes (txt con comas o saltos de línea).")
+    p_ora.add_argument("--output", default="results", help="Directorio de salida.")
+
+    # Nuevo: GUILD (+ ORA posterior)
+    p_guild = sub.add_parser("guild", help="Propagación GUILD y ORA posterior.")
+    p_guild.add_argument("--input_dir", type=Path, required=True, help="Dir con network_arabidopsis.txt y genes_semilla_stringid.txt")
+    p_guild.add_argument("--output", type=Path, default=Path("results"), help="Directorio de resultados.")
+    p_guild.add_argument("--topk", type=int, default=100)
+    p_guild.add_argument("--alpha", type=float, default=0.5)
+
+    args = parser.parse_args()
+
+    if args.cmd == "guild":
+        ora_post_guild(args.input_dir, args.output, topk=args.topk, alpha=args.alpha)
+    else:
+        # Mantener compatibilidad: si no hay subcomando, interpretamos como ORA clásico
+        if hasattr(args, "input"):
+            ejecutar_ora_STRING(args.input, args.output)
+        else:
+            parser.print_help()

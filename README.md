@@ -144,6 +144,10 @@ Los resultados se guardan automáticamente en el directorio especificado mediant
   después de la propagación, junto con su nivel de significancia.  
   - `ora_venn.png`: diagrama de Venn que representa el grado de solapamiento entre los términos funcionales enriquecidos
   antes y después de la propagación, distinguiendo las categorías compartidas y las exclusivas de cada análisis.  
+- `omicas/`: almacena los resultados de los algoritmos implementado en `visualizacion_omicas.py`
+  - `network_seed_overlay.png`: Es una visualizacion de una red donde las semillas estan resaltadas en rojo , los genes añadidos por el algoritmo DIAMOnD en naranga y los demas en gris claro.
+  - `network_seed_overlay.graphml`: En la version de  `network_seed_overlay.png` en formato xml para la implementacion en el informes futuros.
+  - `volcano_plot.png`: Es una grafica de volcano donde se marcan las genes singificativos segun los umbrales donde tambiens se  muestran los 10 genes(por defecto, se puede cambiar) mas significativos en al esquina superior derecha de la grafica.
 
 ## ⚙️ Dependencias
 
@@ -158,6 +162,8 @@ matplotlib
 goatools
 stringdb
 matplotlib-venn
+matplotlib-inline
+seaborn
 ```
 
 ## 📚 Referencias

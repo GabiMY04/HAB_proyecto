@@ -36,6 +36,8 @@ from scripts.diamond import ejecutar_diamond
 from scripts.visualizacion_omica import plot_volcano,plot_network
 from scripts.visualizacion_omica import load_deg
 from scripts.comparar_enriquecimientos import generar_visualizaciones
+from scripts.analisis_funcional import ora_post_guild
+
 
 # Silenciar advertencias y logs no relevantes
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -124,6 +126,20 @@ def main():
         output_dir=ora_post_dir
     )
     paso += 1
+
+
+
+    # === Paso 6b: Propagación GUILD + ORA ===
+    print(f"\n🔹 Paso {paso}: Propagación en red mediante GUILD y ORA posterior.")
+    ora_post_guild(input_dir=data_dir, outdir=results_dir, topk=150, alpha=0.5)
+    guild_prop_dir = results_dir / "guild_propagation"
+    guild_genes_path = guild_prop_dir / "guild_genes.txt"
+    ora_guild_dir = results_dir / "ORA_guild"
+    ora_guild_result = ora_guild_dir / "enrichment_results.csv"
+    if not guild_genes_path.exists() or not ora_guild_result.exists():
+        raise FileNotFoundError("❌ Faltan resultados de GUILD/ORA_guild.")
+    paso += 1
+
 
     # === Verificar resultados ===
     ora_pre_result = ora_pre_dir / "enrichment_results.csv"

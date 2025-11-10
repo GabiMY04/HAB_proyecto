@@ -33,6 +33,8 @@ from scripts.descargar_red_string import descargar_red_STRING
 from scripts.convertir_ids_string import convertir_a_string_ids
 from scripts.analisis_funcional import ejecutar_ora_STRING
 from scripts.diamond import ejecutar_diamond
+from scripts.visualizacion_omica import plot_volcano,plot_network
+from scripts.visualizacion_omica import load_deg
 from scripts.comparar_enriquecimientos import generar_visualizaciones
 
 # Silenciar advertencias y logs no relevantes
@@ -140,6 +142,31 @@ def main():
     print("📊 Gráficas comparativas generadas correctamente.")
     paso += 1
 
+    # === Paso 8: Visualizaciones omicas ===
+
+    #Visualzacion volcano
+    print(f"\n🔹 Paso {paso}: Generando visualizaciones ómicas...")
+    omicas_dir = results_dir / "omicas"
+    deg_path_pattern = str(data_dir / DEGS_RESULT_FILENAME)
+    deg_df = load_deg(deg_path_pattern)
+    plot_volcano(
+        df=deg_df,
+        coef_col='Coef',
+        padj_col='P.value.adj',
+        out=omicas_dir / "volcano_plot.png"
+    )
+    print(f"✅  Volcano plot guardado en: {omicas_dir / 'volcano_plot.png'}")
+    #Visualzacion network
+    network_plot_path = results_dir / "omicas" / "network_seed_overlay.png"
+    plot_network(
+        edge_path=str(data_dir / "network_arabidopsis.txt"),
+        seeds_path=str(data_dir / "genes_semilla_stringid.txt"),
+        added_path=str(results_dir / "diamond_propagation" / "diamond_genes.txt"),
+        out=str(network_plot_path),
+        show_labels=False
+    )
+    print(f"✅  Network guardada en: {network_plot_path}")
+
     # === Final ===
     print("\n🎯 Flujo de trabajo completado correctamente.")
     print(f"\n📁 Resultados principales:")
@@ -147,7 +174,7 @@ def main():
     print(f"   - Propagación DIAMOnD:   {diamond_results_dir}")
     print(f"   - ORA posterior:         {ora_post_dir}")
     print(f"   - Comparativas:          {comparativas_dir}")
-
+    print(f"   - Visualizaciones ómicas: {omicas_dir}")
 
 if __name__ == "__main__":
     main()

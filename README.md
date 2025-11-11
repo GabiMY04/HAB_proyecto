@@ -200,6 +200,15 @@ matplotlib-venn
 matplotlib-inline
 seaborn
 ```
+## :accessibility: .gitignore 
+
+Los archivos que son ignorados al subirlos al repositorio
+
+```
+scripts/__pycache__/
+*.graphml
+*.pyc
+```
 
 ## 📚 Referencias
 

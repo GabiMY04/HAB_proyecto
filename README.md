@@ -166,16 +166,22 @@ Los resultados se guardan automáticamente en el directorio especificado mediant
 
 - `diamond_propagation/`: almacena los resultados del algoritmo DIAMOnD, incluyendo los genes añadidos al módulo y sus respectivos _p_-valores (`diamond_results.csv`), así como la lista completa de genes propagados (`diamond_genes.txt`).  
 
-- `comparativas/`: contiene las visualizaciones que comparan los resultados del análisis funcional antes y después de aplicar DIAMOnD:
+- `comparativas_DIAMOnD/`: contiene las visualizaciones que comparan los resultados del análisis funcional antes y después de aplicar DIAMOnD:
   - `ora_barplot_delta.png`: gráfico de barras comparativo que muestra, para las categorías compartidas entre ambos análisis, la diferencia en
   significancia estadística (_-log10 FDR) entre el ORA pre y post-propagación. Permite observar qué funciones ganan o pierden relevancia tras el DIAMOnD.  
   - `ora_barplot_nuevas.png`: gráfico de barras con las nuevas categorías funcionales que aparecen únicamente
   después de la propagación, junto con su nivel de significancia.  
   - `ora_venn.png`: diagrama de Venn que representa el grado de solapamiento entre los términos funcionales enriquecidos
+  antes y después de la propagación, distinguiendo las categorías compartidas y las exclusivas de cada análisis DIAMOnD.
+- `comparativas_GUILD/`: contiene las visualizaciones que comparan los resultados del análisis funcional antes y después de aplicar GUILF:
+  - `ora_barplot_delta.png`: gráfico de barras comparativo que muestra, para las categorías compartidas entre ambos análisis, la diferencia en
+  significancia estadística (_-log10 FDR) entre el ORA pre y post-propagación. Permite observar qué funciones ganan o pierden relevancia tras el GUILF.  
+  - `ora_barplot_nuevas.png`: gráfico de barras con las nuevas categorías funcionales que aparecen únicamente
+  después de la propagación, junto con su nivel de significancia.  
+  - `ora_venn.png`: diagrama de Venn que representa el grado de solapamiento entre los términos funcionales enriquecidos GUILD
   antes y después de la propagación, distinguiendo las categorías compartidas y las exclusivas de cada análisis.  
 - `omicas/`: almacena los resultados de los algoritmos implementado en `visualizacion_omicas.py`
   - `network_seed_overlay.png`: Es una visualizacion de una red donde las semillas estan resaltadas en rojo , los genes añadidos por el algoritmo DIAMOnD en naranga y los demas en gris claro.
-  - `network_seed_overlay.graphml`: En la version de  `network_seed_overlay.png` en formato xml para la implementacion en el informes futuros.
   - `volcano_plot.png`: Es una grafica de volcano donde se marcan las genes singificativos segun los umbrales donde tambiens se  muestran los 10 genes(por defecto, se puede cambiar) mas significativos en al esquina superior derecha de la grafica.
 
 ## ⚙️ Dependencias

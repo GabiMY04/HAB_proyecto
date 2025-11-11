@@ -96,7 +96,7 @@ alguna de las siguientes condiciones:
  - 1.	No existen más candidatos posibles.
  - 2.	El mejor _p_-valor deja de ser estadísticamente significativo (_p_ > 0.05).
  - 3.	Se alcanzan 100 genes añadidos al módulo.
-- 4.	Se completan 200 iteraciones del proceso.
+ - 4.	Se completan 200 iteraciones del proceso.
 
 Estos criterios garantizan una expansión controlada del módulo y evitan la incorporación de nodos con baja relevancia estadística.
 Los parámetros internos del modelo se encuentran fijados y no deben modificarse,
@@ -122,7 +122,6 @@ Durante la ejecución, el flujo detiene la propagación y genera las salidas cua
 1. Se alcanza el número máximo de genes priorizados definido por el parámetro `topk` (por defecto, 150).
 2. Se completa la **convergencia** del algoritmo de difusión (sin cambios en las puntuaciones entre iteraciones).
 3. No existen nodos adicionales que superen el **umbral mínimo de influencia**.
-4. 
 
 Cada ejecución de GUILD produce dos archivos principales en el directorio `results/guild_propagation/`:
 

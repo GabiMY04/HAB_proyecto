@@ -22,8 +22,9 @@ El proceso completo está completamente automatizado mediante el script principa
 3. **Descarga (o reutilización) de red STRING:** obtiene o usa una red de interacciones proteína-proteína (PPI) centrada en los genes semilla.  
 4. **Análisis funcional inicial (ORA):** evalúa las funciones biológicas enriquecidas entre los genes semilla.  
 5. **Propagación con DIAMOnD:** expande el conjunto inicial añadiendo genes significativamente conectados.  
-6. **Análisis funcional posterior (ORA):** repite el análisis funcional sobre los genes propagados.  
-7. **Comparación visual pre/post:** genera gráficas y diagramas que muestran los cambios en la significancia funcional tras la propagación.
+6. **Análisis funcional posterior (ORA):** repite el análisis funcional sobre los genes propagados.
+7. **Propagación con GUILD + ORA:** aplica un enfoque alternativo de priorización basado en propagación sobre la red mediante el algoritmo GUILD, seguido de un análisis funcional (ORA) de los genes priorizados, permitiendo comparar ambos métodos de expansión.
+8. **Comparación visual pre/post:** genera gráficas y diagramas que muestran los cambios en la significancia funcional tras la propagación.
 
 > 💡 El flujo es completamente modular: cada paso puede ejecutarse y evaluarse de forma independiente desde el script correspondiente.
 
@@ -45,10 +46,13 @@ El proceso completo está completamente automatizado mediante el script principa
 │   └── comparar_enriquecimientos.py      # Visualización comparativa de resultados  
 │
 ├── results/
-│   ├── ORA_semillas/                     # Resultados del ORA inicial
-│   ├── diamond_propagation/              # Resultados de la propagación DIAMOnD
-│   ├── ORA_diamond/                      # Resultados del ORA posterior
-│   └── comparativas/                     # Gráficas comparativas
+│ ├── ORA_semillas/                       # Resultados del ORA inicial sobre los genes semilla
+│ ├── diamond_propagation/                # Genes y archivos producidos por la propagación DIAMOnD
+│ ├── ORA_diamond/                        # ORA aplicado a los genes obtenidos tras DIAMOnD
+│ ├── guild_propagation/                  # Resultados de la propagación/priorización en red mediante GUILD
+│ ├── ORA_guild/                          # ORA aplicado a los genes priorizados por GUILD
+│ ├── omicas/                             # Salidas intermedias del pipeline (listas, mappings, ficheros auxiliares)
+│ └── comparativas/                       # Gráficas y diagramas pre/post para comparar los distintos ORA
 │    
 │
 ├── ejecutar_pipeline.py                  # Script principal (flujo completo)
@@ -101,6 +105,31 @@ con el fin de mantener la reproducibilidad de los resultados.
 Cada ejecución de DIAMOnD genera dos archivos de salida en el directorio `results/diamond_propagation/`:
 - `diamond_results.csv`: tabla con los genes del módulo (semillas + añadidos), sus _p_-valores y número de conexiones.  
 - `diamond_genes.txt`: lista de genes del módulo completo (uno por línea).
+
+---
+
+## ♟️ Implementación de GUILD
+
+El algoritmo **GUILD** (Gene prioritization Using Interaction Networks) se basa en la propagación de información a través de la red de interacciones proteína-proteína, con el objetivo de **priorizar genes** en función de su relevancia topológica respecto a un conjunto de **genes semilla**. La implementación utilizada fue adaptada y automatizada dentro del flujo de trabajo, manteniendo compatibilidad total con el formato de redes descargadas desde **STRING**.
+
+En esta versión, el método aplica un **modelo de difusión** que asigna puntuaciones continuas a todos los genes de la red según su proximidad y conectividad con las semillas. La propagación se controla mediante un parámetro de atenuación (`α`), que regula el equilibrio entre la influencia de los nodos semilla y la información global de la red.
+
+El procedimiento se ejecuta de forma **determinista**: para una misma red y conjunto de semillas, las puntuaciones asignadas a los genes serán siempre idénticas, garantizando la **reproducibilidad** de los resultados. Posteriormente, los genes se ordenan según su puntuación de relevancia y se seleccionan los **top-k** más altos como candidatos priorizados.
+
+
+Durante la ejecución, el flujo detiene la propagación y genera las salidas cuando se cumplen los siguientes criterios:
+
+1. Se alcanza el número máximo de genes priorizados definido por el parámetro `topk` (por defecto, 150).
+2. Se completa la **convergencia** del algoritmo de difusión (sin cambios en las puntuaciones entre iteraciones).
+3. No existen nodos adicionales que superen el **umbral mínimo de influencia**.
+4. 
+
+Cada ejecución de GUILD produce dos archivos principales en el directorio `results/guild_propagation/`:
+
+- `guild_scores.csv`: tabla con las puntuaciones de propagación para todos los genes de la red.
+- `guild_genes.txt`: lista de los genes priorizados (ordenados de mayor a menor relevancia).
+
+A continuación, los genes priorizados se someten a un **análisis funcional (ORA)** independiente, cuyos resultados se almacenan en `results/ORA_guild/`, permitiendo comparar las categorías funcionales enriquecidas frente a las obtenidas mediante **DIAMOnD**.
 
 ---
 

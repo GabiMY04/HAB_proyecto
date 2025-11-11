@@ -173,7 +173,7 @@ def main():
     )
     print(f"✅  Volcano plot guardado en: {omicas_dir / 'volcano_plot.png'}")
     #Visualzacion network
-    network_plot_path = results_dir / "omicas" / "network_seed_overlay.png"
+    network_plot_path = results_dir / "omicas" / "network_seed_overlay_diamond.png"
     plot_network(
         edge_path=str(data_dir / "network_arabidopsis.txt"),
         seeds_path=str(data_dir / "genes_semilla_stringid.txt"),
@@ -181,8 +181,16 @@ def main():
         out=str(network_plot_path),
         show_labels=False
     )
-    print(f"✅  Network guardada en: {network_plot_path}")
-
+    print(f"✅  Network diamond guardada en: {network_plot_path}")
+    network_plot_path = results_dir / "omicas" / "network_seed_overlay_guild.png"
+    plot_network(
+        edge_path=str(data_dir / "network_arabidopsis.txt"),
+        seeds_path=str(data_dir / "genes_semilla_stringid.txt"),
+        added_path=str(results_dir / "guild_propagation" / "guild_genes.txt"),
+        out=str(network_plot_path),
+        show_labels=False
+    )
+    print(f"✅  Network guild guardada en: {network_plot_path}")
     # === Final ===
     print("\n🎯 Flujo de trabajo completado correctamente.")
     print(f"\n📁 Resultados principales:")

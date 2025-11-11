@@ -152,12 +152,17 @@ def main():
         )
 
     # === Paso 7: Visualizaciones comparativas ===
-    print(f"\n🔹 Paso {paso}: Generando gráficas comparativas...")
-    comparativas_dir = results_dir / "comparativas"
-    generar_visualizaciones(pre_csv=ora_pre_result, post_csv=ora_post_result, output_dir=comparativas_dir)
-    print("📊 Gráficas comparativas generadas correctamente.")
+    # DIAMOnD
+    print(f"\n🔹 Paso {paso}: Generando gráficas comparativas DIAMOnD...")
+    comparativas_dir = results_dir / "comparativas_DIAMOnD"
+    generar_visualizaciones(pre_csv=ora_pre_result, post_csv=ora_post_result, output_dir=comparativas_dir, titulo="DIAMOnD")
+    print("📊 Gráficas comparativas DIAMOnD generadas correctamente.")
+    # GUILD
+    print(f"\n🔹 Paso {paso}: Generando gráficas comparativas GUILD...")
+    comparativas_dir = results_dir / "comparativas_GUILD"
+    generar_visualizaciones(pre_csv=ora_pre_result, post_csv=ora_guild_result, output_dir=comparativas_dir, titulo="GUILD")
+    print("📊 Gráficas comparativas GUILD generadas correctamente.")
     paso += 1
-
     # === Paso 8: Visualizaciones omicas ===
 
     #Visualzacion volcano

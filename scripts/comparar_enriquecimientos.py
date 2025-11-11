@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
 
 
-def generar_visualizaciones(pre_csv: Path, post_csv: Path, output_dir: Path) -> pd.DataFrame:
+def generar_visualizaciones(pre_csv: Path, post_csv: Path, output_dir: Path, titulo: str) -> pd.DataFrame:
     """
     Genera representaciones visuales comparando los resultados del análisis funcional
     antes y después de la propagación con DIAMOnD.
@@ -96,12 +96,12 @@ def generar_visualizaciones(pre_csv: Path, post_csv: Path, output_dir: Path) -> 
 
     y = np.arange(len(top_shared))
     width = 0.35
-    plt.barh(y - width / 2, top_shared["logp_pre"], width, label="Pre-DIAMOnD", color="#64B5F6")
-    plt.barh(y + width / 2, top_shared["logp_post"], width, label="Post-DIAMOnD", color="#1976D2")
+    plt.barh(y - width / 2, top_shared["logp_pre"], width, label=f"Pre-{titulo}", color="#64B5F6")
+    plt.barh(y + width / 2, top_shared["logp_post"], width, label=f"Post-{titulo}", color="#1976D2")
 
     plt.yticks(y, top_shared["term"], fontsize=9)
     plt.xlabel("-log10(FDR)")
-    plt.title("Comparación del enriquecimiento funcional (Pre vs Post DIAMOnD)", fontsize=13, pad=15)
+    plt.title(f"Comparación del enriquecimiento funcional (Pre vs Post {titulo})", fontsize=13, pad=15)
     plt.legend()
     plt.tight_layout()
     plt.savefig(output_dir / "ora_barplot_delta.png", dpi=300)
@@ -119,7 +119,7 @@ def generar_visualizaciones(pre_csv: Path, post_csv: Path, output_dir: Path) -> 
 
     plt.figure(figsize=(8, 5 + 0.4 * len(new)))
     plt.barh(new["term_short"], -np.log10(new["p_post"]), color="#1E88E5")
-    plt.title("Categorías nuevas tras DIAMOnD", fontsize=13)
+    plt.title(f"Categorías nuevas tras {titulo}", fontsize=13)
     plt.xlabel("-log10(FDR)")
     plt.gca().invert_yaxis()
     plt.tight_layout()
@@ -130,7 +130,7 @@ def generar_visualizaciones(pre_csv: Path, post_csv: Path, output_dir: Path) -> 
     pre_terms = set(pre["term"])
     post_terms = set(post["term"])
     plt.figure(figsize=(5, 5))
-    venn2([pre_terms, post_terms], set_labels=("Pre-DIAMOnD", "Post-DIAMOnD"))
+    venn2([pre_terms, post_terms], set_labels=(f"Pre-{titulo}", f"Post-{titulo}"))
     plt.title("Solapamiento de categorías significativas", fontsize=12)
     plt.tight_layout()
     plt.savefig(output_dir / "ora_venn.png", dpi=300)
@@ -147,10 +147,11 @@ def generar_visualizaciones(pre_csv: Path, post_csv: Path, output_dir: Path) -> 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Genera comparaciones gráficas de ORA pre y post DIAMOnD (STRINGdb).")
-    parser.add_argument("--pre", type=Path, required=True, help="Archivo CSV del ORA pre-DIAMOnD.")
-    parser.add_argument("--post", type=Path, required=True, help="Archivo CSV del ORA post-DIAMOnD.")
+    parser = argparse.ArgumentParser(description="Genera comparaciones gráficas de ORA pre y post tipo  (STRINGdb).")
+    parser.add_argument("--pre", type=Path, required=True, help="Archivo CSV del ORA pre-tipo.")
+    parser.add_argument("--post", type=Path, required=True, help="Archivo CSV del ORA post-tipo.")
     parser.add_argument("--output_dir", type=Path, required=True, help="Directorio de salida para los gráficos.")
+    parser.add_argument("--titulo", type=str, default="DIAMOnD", help="Texto que sustituye a 'DIAMOnD' en títulos y etiquetas.")
 
     args = parser.parse_args()
-    generar_visualizaciones(args.pre, args.post, args.output_dir)
+    generar_visualizaciones(args.pre, args.post, args.output_dir, args.titulo)

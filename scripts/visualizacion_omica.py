@@ -247,7 +247,7 @@ def plot_network(edge_path, seeds_path=None, added_path=None,
 
     # === Leyenda
     red_patch = mpatches.Circle((0, 0), radius=0.1, color='red', label='Genes semilla')
-    orange_patch = mpatches.Circle((0, 0), radius=0.1, color='orange', label='Genes añadidos (DIAMOnD)')
+    orange_patch = mpatches.Circle((0, 0), radius=0.1, color='orange', label='Genes añadidos')
     gray_patch = mpatches.Circle((0, 0), radius=0.1, color='lightgray', label='Otros genes')
 
     legend_elements = [red_patch, orange_patch, gray_patch]

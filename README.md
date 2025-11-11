@@ -52,7 +52,8 @@ El proceso completo está completamente automatizado mediante el script principa
 │ ├── guild_propagation/                  # Resultados de la propagación/priorización en red mediante GUILD
 │ ├── ORA_guild/                          # ORA aplicado a los genes priorizados por GUILD
 │ ├── omicas/                             # Salidas intermedias del pipeline (listas, mappings, ficheros auxiliares)
-│ └── comparativas/                       # Gráficas y diagramas pre/post para comparar los distintos ORA
+│ └── comparativas_GUILD/                 # Gráficas y diagramas pre/post GUILD para comparar los distintos ORA
+│ └── comparativas_DIAMOnD/               # Gráficas y diagramas pre/post DIAMOnD para comparar los distintos ORA
 │    
 │
 ├── ejecutar_pipeline.py                  # Script principal (flujo completo)

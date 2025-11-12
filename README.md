@@ -1,21 +1,19 @@
 # 🌱 🧬 Análisis de propagación génica en *Arabidopsis thaliana*
 
-Este proyecto implementa un flujo completo de análisis funcional y propagación en redes génicas en *Arabidopsis thaliana*, combinando el algoritmo **DIAMOnD (_Disease Module Detection_)** con un análisis funcional de sobrerrepresentación (**ORA**, _Over-Representation Analysis_).
+Este proyecto implementa un flujo completo de análisis funcional y propagación en redes génicas en *Arabidopsis thaliana*, combinando los algoritmos **DIAMOnD** (_Disease Module Detection_) y **GUILD** (_Gene prioritization Using Interaction Networks_) con un análisis funcional de sobrerrepresentación (**ORA**, _Over-Representation Analysis_).  
 El objetivo del flujo es identificar nuevos genes funcionalmente asociados a un conjunto inicial de genes semilla —provenientes de resultados de expresión diferencial— evaluando su conectividad dentro de la red y su relevancia biológica tras la propagación.
 
 En este flujo se combinan dos niveles de análisis complementarios:
-- El estructural, basado en la topología de la red mediante el algoritmo DIAMOnD, que permite expandir módulos génicos a partir de las semillas iniciales.
-- El funcional, basado en el análisis de sobrerrepresentación (ORA), que evalúa los procesos biológicos enriquecidos antes y después de la propagación para revelar nuevas asociaciones funcionales entre los genes.
+- El **estructural**, basado en la topología de la red mediante los algoritmos **DIAMOnD** y **GUILD**, que permiten expandir o priorizar módulos génicos a partir de las semillas iniciales.  
+- El **funcional**, basado en el análisis de sobrerrepresentación (**ORA**), que evalúa los procesos biológicos enriquecidos antes y después de la propagación para revelar nuevas asociaciones funcionales entre los genes.
 
-Este repositorio contiene un flujo completo en Python que integra una implementación
-propia de la propagación DIAMOnD, el análisis funcional con `STRINGdb`, y la generación
-de gráficas comparativas que permiten visualizar las diferencias funcionales pre y post-propagación.
+Este repositorio contiene un flujo completo en Python que integra implementaciones propias de **DIAMOnD** y **GUILD**, el análisis funcional con `STRINGdb`, y la generación de gráficas comparativas que permiten visualizar las diferencias funcionales pre y post-propagación.
 
 ---
 
 ## ⛓️ Descripción general del flujo
 
-El proceso completo está completamente automatizado mediante el script principal `ejecutar_pipeline.py`, e incluye **siete pasos secuenciales**:
+El proceso completo está completamente automatizado mediante el script principal `ejecutar_pipeline.py`, e incluye **ocho pasos secuenciales**:
 
 1. **Procesamiento de DEGs:** filtra genes diferencialmente expresados y genera listas separadas para genes sobre- y subexpresados.  
 2. **Conversión a formato `STRINGdb`:** adapta los identificadores al prefijo taxonómico correspondiente a *Arabidopsis thaliana* (`3702.`).  
@@ -43,6 +41,7 @@ El proceso completo está completamente automatizado mediante el script principa
 │   ├── descargar_red_string.py           # Descarga la red de interacciones
 │   ├── analisis_funcional.py             # Implementación propia del ORA mediante STRINGdb
 │   ├── diamond.py                        # Implementación propia del algoritmo DIAMOnD  
+│   ├── visualizacion_omica.py            # Visualizaciones ómicas (volcano plot, red semilla)
 │   └── comparar_enriquecimientos.py      # Visualización comparativa de resultados  
 │
 ├── results/
@@ -52,7 +51,7 @@ El proceso completo está completamente automatizado mediante el script principa
 │ ├── guild_propagation/                  # Resultados de la propagación/priorización en red mediante GUILD
 │ ├── ORA_guild/                          # ORA aplicado a los genes priorizados por GUILD
 │ ├── omicas/                             # Salidas intermedias del pipeline (listas, mappings, ficheros auxiliares)
-│ └── comparativas_GUILD/                 # Gráficas y diagramas pre/post GUILD para comparar los distintos ORA
+│ ├── comparativas_GUILD/                 # Gráficas y diagramas pre/post GUILD para comparar los distintos ORA
 │ └── comparativas_DIAMOnD/               # Gráficas y diagramas pre/post DIAMOnD para comparar los distintos ORA
 │    
 │
@@ -78,7 +77,7 @@ una interpretación estadística más robusta y confiable.
 
 Finalmente, los identificadores GO (por ejemplo, `GO:0015979`) se traducen automáticamente a sus nombres descriptivos
 mediante la ontología oficial de Gene Ontology (`go-basic.obo`), produciendo una tabla interpretable de las funciones
-biológicas correspondientes.. El análisis genera dos salidas:
+biológicas correspondientes. El análisis genera dos salidas:
 
 - `enrichment_results.csv`: tabla con las categorías GO, sus valores FDR y genes asociados.  
 - `enrichment_plot.png`: gráfico de barras con las categorías más significativamente enriquecidas.
@@ -86,7 +85,7 @@ biológicas correspondientes.. El análisis genera dos salidas:
 ## ♦️ Implementación de DIAMOnD
 
 El método DIAMOnD considera que los genes relacionados con una misma enfermedad o proceso biológico tienden a agruparse en módulos densamente
-conectado. La implementación del algoritmo fue desarrollada de forma personalizada,
+conectados. La implementación del algoritmo fue desarrollada de forma personalizada,
 adaptada a la estructura y objetivos del flujo de trabajo. El método expande iterativamente un conjunto de genes semilla dentro de una red génica,
 añadiendo en cada iteración el gen más significativamente conectado según una prueba hipergeométrica.
 La implementación es completamente determinista: para un mismo conjunto de semillas y red de entrada, el resultado del módulo generado será siempre idéntico.
@@ -173,16 +172,16 @@ Los resultados se guardan automáticamente en el directorio especificado mediant
   después de la propagación, junto con su nivel de significancia.  
   - `ora_venn.png`: diagrama de Venn que representa el grado de solapamiento entre los términos funcionales enriquecidos
   antes y después de la propagación, distinguiendo las categorías compartidas y las exclusivas de cada análisis DIAMOnD.
-- `comparativas_GUILD/`: contiene las visualizaciones que comparan los resultados del análisis funcional antes y después de aplicar GUILF:
+- `comparativas_GUILD/`: contiene las visualizaciones que comparan los resultados del análisis funcional antes y después de aplicar GUILD:
   - `ora_barplot_delta.png`: gráfico de barras comparativo que muestra, para las categorías compartidas entre ambos análisis, la diferencia en
-  significancia estadística (_-log10 FDR) entre el ORA pre y post-propagación. Permite observar qué funciones ganan o pierden relevancia tras el GUILF.  
+  significancia estadística (_-log10 FDR) entre el ORA pre y post-propagación. Permite observar qué funciones ganan o pierden relevancia tras el GUILD.  
   - `ora_barplot_nuevas.png`: gráfico de barras con las nuevas categorías funcionales que aparecen únicamente
   después de la propagación, junto con su nivel de significancia.  
   - `ora_venn.png`: diagrama de Venn que representa el grado de solapamiento entre los términos funcionales enriquecidos GUILD
   antes y después de la propagación, distinguiendo las categorías compartidas y las exclusivas de cada análisis.  
 - `omicas/`: almacena los resultados de los algoritmos implementado en `visualizacion_omicas.py`
-  - `network_seed_overlay.png`: Es una visualizacion de una red donde las semillas estan resaltadas en rojo , los genes añadidos por el algoritmo DIAMOnD en naranga y los demas en gris claro.
-  - `volcano_plot.png`: Es una grafica de volcano donde se marcan las genes singificativos segun los umbrales donde tambiens se  muestran los 10 genes(por defecto, se puede cambiar) mas significativos en al esquina superior derecha de la grafica.
+  - `network_seed_overlay.png`: visualización de una red donde las semillas están resaltadas en rojo, los genes añadidos por el algoritmo DIAMOnD en naranja y los demás en gris claro.
+  - `volcano_plot.png`: gráfico de volcano donde se marcan los genes significativos según los umbrales donde también se muestran los 10 genes (por defecto, se puede cambiar) más significativos en la esquina superior derecha de la gráfica.
 
 ## ⚙️ Dependencias
 
